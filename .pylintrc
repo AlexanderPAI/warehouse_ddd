@@ -5,3 +5,6 @@ disable=
     C0116, #  Missing function or method docstring
     R0903, #  Too few public methods
     W0511, # fix me (TODOs)
+ignore-paths =
+    ^venv/,
+    ^.venv/
