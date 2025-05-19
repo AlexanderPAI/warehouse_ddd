@@ -9,7 +9,7 @@ Base = declarative_base()
 
 class ProductORM(Base):
     __tablename__ = "products"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     quantity = Column(Integer)
     price = Column(Float)
@@ -17,7 +17,7 @@ class ProductORM(Base):
 
 class OrderORM(Base):
     __tablename__ = "orders"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
 
 
 order_product_assocoations = Table(
