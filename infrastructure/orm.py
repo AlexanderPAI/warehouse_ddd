@@ -1,3 +1,5 @@
+"""Здесь мы храним схемы таблицы. Ок"""
+
 from sqlalchemy import Column, Float, ForeignKey, Integer, String, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
