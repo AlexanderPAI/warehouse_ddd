@@ -33,7 +33,12 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
 
     def __enter__(self):
         self._session = self.session_factory()
-        return self
+        try:
+            self.commit()
+            return self
+        except Exception as e:
+            self._session.rollback()
+            logger.error(e)
 
     def __exit__(self, exception_type, exception_value, traceback):
         if self._session is not None:

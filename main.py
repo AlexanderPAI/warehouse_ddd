@@ -36,7 +36,7 @@ def main():
             name="test1", quantity=1, price=100
         )
         logger.info(f"create product: {new_product}")
-        uow.commit()
+        # uow.commit()
         # todo add some actions
 
 
