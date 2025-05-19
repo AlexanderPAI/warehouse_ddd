@@ -1,23 +1,25 @@
 from typing import List
 
-from interfaces.repositories.abstract import AbstractRepository
-
 from .models import Order, Product
 
 
 class WarehouseService:
     def __init__(
-        self, product_repo: AbstractRepository, order_repo: AbstractRepository
+        self,
+        uow,
+        product_orm,
+        order_orm,
     ):
-        self.product_repo = product_repo
-        self.order_repo = order_repo
+        self.uow = uow
+        self.product_orm = product_orm
+        self.order_orm = order_orm
 
     def create_product(self, name: str, quantity: int, price: float) -> Product:
-        product = Product(id=1, name=name, quantity=quantity, price=price)
-        self.product_repo.add(product.as_dict())
+        product = Product(name=name, quantity=quantity, price=price)
+        self.uow.get_repository(self.product_orm).add(product.as_dict())
         return product
 
     def create_order(self, products: List[Product]) -> Order:
-        order = Order(id=1, products=products)
-        self.order_repo.add(order.as_dict())
+        order = Order(products=products)
+        self.uow.get_repository(self.order_orm).add(order.as_dict())
         return order
