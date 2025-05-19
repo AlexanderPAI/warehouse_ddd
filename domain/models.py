@@ -23,7 +23,7 @@ class Product(Entity):
 
 @dataclass
 class Order(Entity):
-    id: int
+    id: Optional[int] = None
     products: List[Product] = field(default_factory=list)
 
     def add_product(self, product: Product):

@@ -1,18 +1,25 @@
 services:
+
   warehouse:
     container_name: warehouse_backend
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      - warehouse_db
+
   warehouse_db:
     container_name: warehouse_db
     image: postgres:17
+    ports:
+      - "5433:5432"
     volumes:
       - warehouse_db:/var/lib/postgres/data:rw
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+#      POSTGRES_PORT: ${POSTGRES_PORT}
 
 volumes:
   warehouse_db:

@@ -1,7 +1,9 @@
 from typing import Any, Dict, Generic, Sequence, Type, TypeVar
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+
+# from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from interfaces.repositories.abstract import AbstractRepository
 
@@ -13,12 +15,12 @@ class BaseRepository(AbstractRepository, Generic[OrmType,]):
     def __init__(
         self,
         orm: Type[OrmType],
-        session: Session,
+        session: AsyncSession,
     ) -> None:
         self._orm = orm
         self._session = session
 
-    def add(self, data_obj: Dict[Any, Any]) -> None:
+    async def add(self, data_obj: Dict[Any, Any]) -> None:
         """
         Add to DB.
         :param data_obj: Dict[Any, Any]
@@ -27,20 +29,22 @@ class BaseRepository(AbstractRepository, Generic[OrmType,]):
         obj = self._orm(**data_obj)
         self._session.add(obj)
 
-    def get(self, obj_id: int) -> Dict[Any, Any]:
+    async def get(self, obj_id: int) -> Dict[Any, Any]:
         """
         Get from DB.
         :param obj_id: int
         :return: Dict[Any, Any]
         """
-        return self._session.query(self._orm).filter_by(id=obj_id).one()
+        query = select(self._orm).where(self._orm.id == obj_id)
+        result = await self._session.execute(query)
+        return result.scalars().one()
 
-    def list(self, *args, **kwargs) -> Sequence[OrmType]:
+    async def list(self, *args, **kwargs) -> Sequence[OrmType]:
         """
         List from DB
         :return: List[Dict[Any, Any]]
         """
-        obj_list = self._session.execute(
+        obj_list = await self._session.execute(
             select(self._orm).filter(*args).filter_by(**kwargs)
         )
         return obj_list.scalars().all()
