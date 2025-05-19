@@ -1,25 +1,27 @@
-from typing import List
-
-from .models import Order, Product
+from domain.dtos import (
+    ProductDTO,  # OrderDTO # dataclass для order вообще не нужен в итоге
+)
 
 
 class WarehouseService:
     def __init__(
         self,
         uow,
-        product_orm,
-        order_orm,
+        product_model,
+        order_model,
     ):
         self.uow = uow
-        self.product_orm = product_orm
-        self.order_orm = order_orm
+        self.product_model = product_model
+        self.order_model = order_model
 
-    async def create_product(self, name: str, quantity: int, price: float) -> Product:
-        product = Product(name=name, quantity=quantity, price=price)
-        await self.uow.get_repository(self.product_orm).add(product.as_dict())
+    async def create_product(self, product: ProductDTO):
+        product = self.product_model(
+            name=product.name, quantity=product.quantity, price=product.price
+        )
+        await self.uow.get_repository(self.product_model).add(product)
         return product
 
-    async def create_order(self, products: List[Product]) -> Order:
-        order = Order(products=products)
-        await self.uow.get_repository(self.order_orm).add(order.as_dict())
+    async def create_order(self, products):
+        order = self.order_model(products=products)
+        await self.uow.get_repository(self.order_model).add(order)
         return order

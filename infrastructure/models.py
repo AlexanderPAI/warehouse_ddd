@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
-class ProductORM(Base):
+class Product(Base):
     __tablename__ = "products"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
@@ -15,7 +15,7 @@ class ProductORM(Base):
     price = Column(Float)
 
 
-class OrderORM(Base):
+class Order(Base):
     __tablename__ = "orders"
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -27,4 +27,4 @@ order_product_assocoations = Table(
     Column("product_id", ForeignKey("products.id")),
 )
 
-OrderORM.products = relationship("ProductORM", secondary=order_product_assocoations)
+Order.products = relationship("Product", secondary=order_product_assocoations)

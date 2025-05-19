@@ -4,7 +4,7 @@ from typing import List, Optional
 
 
 @dataclass
-class Entity(ABC):
+class EntityDTO(ABC):
     def as_dict(self):
         return {
             key: value
@@ -14,7 +14,7 @@ class Entity(ABC):
 
 
 @dataclass
-class Product(Entity):
+class ProductDTO(EntityDTO):
     name: str
     quantity: int
     price: float
@@ -22,11 +22,11 @@ class Product(Entity):
 
 
 @dataclass
-class Order(Entity):
+class OrderDTO(EntityDTO):
     id: Optional[int] = None
-    products: List[Product] = field(default_factory=list)
+    products: List[ProductDTO] = field(default_factory=list)
 
-    def add_product(self, product: Product):
+    def add_product(self, product: ProductDTO):
         self.products.append(product)
 
     def as_dict(self):
