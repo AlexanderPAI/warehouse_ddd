@@ -3,12 +3,14 @@ from sqlalchemy.orm import sessionmaker
 
 from domain.services import WarehouseService
 from infrastructure.database import DATABASE_URL
-from infrastructure.orm import Base
-from infrastructure.repositories import (
-    SqlAlchemyOrderRepository,
-    SqlAlchemyProductRepository,
-)
+from infrastructure.orm import Base, OrderORM, ProductORM
+
+# from interfaces.repositories import (
+#     SqlAlchemyOrderRepository,
+#     SqlAlchemyProductRepository,
+# )
 from infrastructure.unit_of_work import SqlAlchemyUnitOfWork
+from interfaces.repositories.base import BaseRepository
 
 engine = create_engine(DATABASE_URL)
 SessionFactory = sessionmaker(bind=engine)
@@ -17,8 +19,8 @@ Base.metadata.create_all(engine)
 
 def main():
     session = SessionFactory()
-    product_repo = SqlAlchemyProductRepository(session)
-    order_repo = SqlAlchemyOrderRepository(session)
+    product_repo = BaseRepository(orm=ProductORM, session=session)
+    order_repo = BaseRepository(orm=OrderORM, session=session)
 
     uow = SqlAlchemyUnitOfWork(session)
 
