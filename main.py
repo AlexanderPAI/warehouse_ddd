@@ -1,11 +1,14 @@
-import asyncio
+# import asyncio
 import logging
+
+import uvicorn
 
 from domain.dtos import ProductDTO
 from domain.services import WarehouseService
 from infrastructure.database import create_tables, session_factory
 from infrastructure.models import Customer, Order, Product
 from infrastructure.unit_of_work import SqlAlchemyUnitOfWork
+from interfaces.api.api import app
 from interfaces.repositories.base import BaseRepository
 
 logging.basicConfig(
@@ -16,7 +19,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def main():
+def main():
+    uvicorn.run(app=app, host="0.0.0.0", port=8080)
+
+
+async def sec_main():
     await create_tables()
     uow = SqlAlchemyUnitOfWork(session_factory=session_factory)
 
@@ -43,4 +50,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
+    # asyncio.run(main())
