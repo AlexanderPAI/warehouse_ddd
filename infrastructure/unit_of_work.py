@@ -1,26 +1,26 @@
 import logging
 from abc import ABC, abstractmethod
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
 
 class UnitOfWork(ABC):
     @abstractmethod
-    def __enter__(self):
+    async def __aenter__(self):
         pass
 
     @abstractmethod
-    def __exit__(self, exception_type, exception_value, traceback):
+    async def __aexit__(self, exception_type, exception_value, traceback):
         pass
 
     @abstractmethod
-    def commit(self):
+    async def commit(self):
         pass
 
     @abstractmethod
-    def rollback(self):
+    async def rollback(self):
         pass
 
 
@@ -28,32 +28,36 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
 
     def __init__(self, session_factory) -> None:
         self.session_factory = session_factory
-        self._session: Session | None = None
+        self._session: AsyncSession | None = None
         self._repositories = {}
 
-    def __enter__(self):
+    async def __aenter__(self):
         self._session = self.session_factory()
         try:
-            self.commit()
+            await self.commit()
             return self
         except Exception as e:
-            self._session.rollback()
+            await self._session.rollback()
             logger.error(e)
 
-    def __exit__(self, exception_type, exception_value, traceback):
+    async def __aexit__(self, exception_type, exception_value, traceback):
         if self._session is not None:
-            if exception_type is not None:
-                self.rollback()
-                logger.error("Is rollback")
-            self._session.close()
+            try:
+                if exception_type is None:
+                    await self.commit()
+                else:
+                    await self.rollback()
+                    logger.error("Is rollback")
+            finally:
+                await self._session.close()
 
-    def commit(self) -> None:
+    async def commit(self) -> None:
         if self._session is not None:
-            self._session.commit()
+            await self._session.commit()
 
-    def rollback(self) -> None:
+    async def rollback(self) -> None:
         if self._session is not None:
-            self._session.rollback()
+            await self._session.rollback()
 
     def register_repository(self, orm_type, repository) -> None:
         if self._session is None:

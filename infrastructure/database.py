@@ -1,8 +1,22 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-DATABASE_URL = "sqlite:///warehouse.db"
+from config import cfg
+from infrastructure.orm import Base
 
-engine = create_engine(DATABASE_URL)
+load_dotenv()
 
-session_factory = sessionmaker(bind=engine)
+DB_URL = (
+    f"postgresql+asyncpg://"
+    f"{cfg.postgres_user}:{cfg.postgres_password}@{cfg.postgres_host}"
+    f":{cfg.postgres_port}/{cfg.postgres_db}"
+)
+
+engine = create_async_engine(DB_URL)
+
+session_factory = async_sessionmaker(bind=engine)
+
+
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)

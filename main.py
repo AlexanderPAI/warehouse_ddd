@@ -1,11 +1,9 @@
+import asyncio
 import logging
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
 from domain.services import WarehouseService
-from infrastructure.database import DATABASE_URL
-from infrastructure.orm import Base, OrderORM, ProductORM
+from infrastructure.database import create_tables, session_factory
+from infrastructure.orm import OrderORM, ProductORM
 from infrastructure.unit_of_work import SqlAlchemyUnitOfWork
 from interfaces.repositories.base import BaseRepository
 
@@ -17,22 +15,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-engine = create_engine(DATABASE_URL)
-SessionFactory = sessionmaker(bind=engine)
-Base.metadata.create_all(engine)
-
-
-def main():
-
-    uow = SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+async def main():
+    await create_tables()
+    uow = SqlAlchemyUnitOfWork(session_factory=session_factory)
 
     warehouse_service = WarehouseService(
         uow, product_orm=ProductORM, order_orm=OrderORM
     )
-    with uow:
+    async with uow:
         uow.register_repository(ProductORM, BaseRepository)
         uow.register_repository(OrderORM, BaseRepository)
-        new_product = warehouse_service.create_product(
+        new_product = await warehouse_service.create_product(
             name="test1", quantity=1, price=100
         )
         logger.info(f"create product: {new_product}")
@@ -41,4 +34,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
