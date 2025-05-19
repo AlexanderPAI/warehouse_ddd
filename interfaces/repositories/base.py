@@ -7,27 +7,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from interfaces.repositories.abstract import AbstractRepository
 
-OrmType = TypeVar("OrmType")
+ModelType = TypeVar("ModelType")
 
 
-class BaseRepository(AbstractRepository, Generic[OrmType,]):
+class BaseRepository(AbstractRepository, Generic[ModelType,]):
 
     def __init__(
         self,
-        orm: Type[OrmType],
+        model: Type[ModelType],
         session: AsyncSession,
     ) -> None:
-        self._orm = orm
+        self._model = model
         self._session = session
 
-    async def add(self, data_obj: Dict[Any, Any]) -> None:
+    async def add(self, data_obj: Dict[Any, Any] | Any) -> None:
         """
         Add to DB.
         :param data_obj: Dict[Any, Any]
         :return: None
         """
-        obj = self._orm(**data_obj)
+        if isinstance(data_obj, Dict):
+            obj = self._model(**data_obj)
+        else:
+            obj = data_obj
         self._session.add(obj)
+        return obj
 
     async def get(self, obj_id: int) -> Dict[Any, Any]:
         """
@@ -35,16 +39,16 @@ class BaseRepository(AbstractRepository, Generic[OrmType,]):
         :param obj_id: int
         :return: Dict[Any, Any]
         """
-        query = select(self._orm).where(self._orm.id == obj_id)
+        query = select(self._model).where(self._model.id == obj_id)
         result = await self._session.execute(query)
         return result.scalars().one()
 
-    async def list(self, *args, **kwargs) -> Sequence[OrmType]:
+    async def list(self, *args, **kwargs) -> Sequence[ModelType]:
         """
         List from DB
         :return: List[Dict[Any, Any]]
         """
         obj_list = await self._session.execute(
-            select(self._orm).filter(*args).filter_by(**kwargs)
+            select(self._model).filter(*args).filter_by(**kwargs)
         )
         return obj_list.scalars().all()

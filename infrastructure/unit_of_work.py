@@ -59,10 +59,10 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         if self._session is not None:
             await self._session.rollback()
 
-    def register_repository(self, orm_type, repository) -> None:
+    def register_repository(self, model, repository) -> None:
         if self._session is None:
             raise RuntimeError("Session is not initialized")
-        self._repositories[orm_type] = repository(session=self._session, orm=orm_type)
+        self._repositories[model] = repository(session=self._session, model=model)
 
     def get_repository(self, orm_type):
         return self._repositories[orm_type]
