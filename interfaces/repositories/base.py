@@ -31,6 +31,7 @@ class BaseRepository(AbstractRepository, Generic[ModelType,]):
         else:
             obj = data_obj
         self._session.add(obj)
+        await self._session.flush()
         return obj
 
     async def get(self, obj_id: int) -> Dict[Any, Any]:

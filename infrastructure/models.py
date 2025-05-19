@@ -20,6 +20,11 @@ class Order(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
 
+class Customer(Base):
+    __tablename__ = "customers"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+
 order_product_assocoations = Table(
     "order_product_assocoations",
     Base.metadata,
@@ -27,4 +32,12 @@ order_product_assocoations = Table(
     Column("product_id", ForeignKey("products.id")),
 )
 
+customer_order_assocoations = Table(
+    "customer_order_assocoations",
+    Base.metadata,
+    Column("customer_id", ForeignKey("customers.id")),
+    Column("order_id", ForeignKey("orders.id")),
+)
+
 Order.products = relationship("Product", secondary=order_product_assocoations)
+Customer.orders = relationship("Order", secondary=customer_order_assocoations)
