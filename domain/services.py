@@ -18,17 +18,17 @@ class WarehouseService:
 
     async def create_customer(self):
         customer = self.customer_model()
-        await self.uow.get_repository(self.customer_model).add(customer)
-        return customer
+        obj = await self.uow.get_repository(self.customer_model).add(customer)
+        return obj
 
     async def create_product(self, product: ProductDTO):
         product = self.product_model(
             name=product.name, quantity=product.quantity, price=product.price
         )
-        await self.uow.get_repository(self.product_model).add(product)
-        return product
+        obj = await self.uow.get_repository(self.product_model).add(product)
+        return obj
 
     async def create_order(self, products):
         order = self.order_model(products=products)
-        await self.uow.get_repository(self.order_model).add(order)
-        return order
+        obj = await self.uow.get_repository(self.order_model).add(order)
+        return obj

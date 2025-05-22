@@ -1,4 +1,4 @@
-# import asyncio
+import asyncio
 import logging
 
 import uvicorn
@@ -19,8 +19,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def main():
-    uvicorn.run(app=app, host="0.0.0.0", port=8080)
+async def main():
+    await create_tables()
+    config = uvicorn.Config(app=app, host="0.0.0.0", port=8080)
+    server = uvicorn.Server(config)
+    await server.serve()
 
 
 async def sec_main():
@@ -50,5 +53,5 @@ async def sec_main():
 
 
 if __name__ == "__main__":
-    main()
-    # asyncio.run(main())
+    # main()
+    asyncio.run(main())

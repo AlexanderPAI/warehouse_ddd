@@ -32,6 +32,7 @@ class BaseRepository(AbstractRepository, Generic[ModelType,]):
             obj = data_obj
         self._session.add(obj)
         await self._session.flush()
+        await self._session.refresh(obj)
         return obj
 
     async def get(self, obj_id: int) -> Dict[Any, Any]:

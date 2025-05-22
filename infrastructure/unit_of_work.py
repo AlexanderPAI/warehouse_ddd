@@ -33,18 +33,15 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
 
     async def __aenter__(self):
         self._session = self.session_factory()
-        try:
-            await self.commit()
-            return self
-        except Exception as e:
-            await self._session.rollback()
-            logger.error(e)
+        return self
 
     async def __aexit__(self, exception_type, exception_value, traceback):
         if self._session is not None:
             try:
                 if exception_type is None:
+                    logger.info("Committing transaction...")
                     await self.commit()
+                    logger.info("Committed successfully!")
                 else:
                     await self.rollback()
                     logger.error("Is rollback")
