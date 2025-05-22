@@ -39,5 +39,9 @@ customer_order_assocoations = Table(
     Column("order_id", ForeignKey("orders.id")),
 )
 
-Order.products = relationship("Product", secondary=order_product_assocoations)
-Customer.orders = relationship("Order", secondary=customer_order_assocoations)
+Order.products = relationship(
+    "Product", secondary=order_product_assocoations, lazy="selectin"
+)
+Customer.orders = relationship(
+    "Order", secondary=customer_order_assocoations, lazy="selectin"
+)

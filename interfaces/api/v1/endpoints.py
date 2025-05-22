@@ -8,7 +8,11 @@ from domain.services import WarehouseService
 from infrastructure.database import session_factory
 from infrastructure.models import Customer, Order, Product
 from infrastructure.unit_of_work import SqlAlchemyUnitOfWork
-from interfaces.api.v1.schemes import ProductResponseModel
+from interfaces.api.v1.schemes import (
+    CustomerResponseModel,
+    OrderResponseModel,
+    ProductResponseModel,
+)
 from interfaces.repositories.base import BaseRepository
 
 logger = logging.getLogger(__name__)
@@ -24,16 +28,27 @@ warehouse_service = WarehouseService(
 @router.post(path="/customer", summary="Create customer", tags=["Customer"])
 async def create_customer():
     """Create customer"""
-    pass
+    async with uow:
+        uow.register_repository(Customer, BaseRepository)
+        customer = await warehouse_service.create_customer()
+        return CustomerResponseModel.model_validate(customer, from_attributes=True)
 
 
 @router.get(path="/customer", summary="Get customer by id or name", tags=["Customer"])
 async def get_customer(customer_id: int = Query(..., title="Customer ID")):
     """Get customer by id or name"""
-    pass
+    async with uow:
+        uow.register_repository(Customer, BaseRepository)
+        product = await warehouse_service.get_customer(customer_id)
+        return CustomerResponseModel.model_validate(product, from_attributes=True)
 
 
-@router.post(path="/order", summary="Create order", tags=["Order"])
+@router.post(
+    path="/order",
+    summary="Create order",
+    tags=["Order"],
+    response_model=OrderResponseModel,
+)
 async def create_order(
     products: List[int] | List[str] = Body(..., title="Product IDs")
 ):
@@ -41,7 +56,12 @@ async def create_order(
     pass
 
 
-@router.get(path="/order", summary="Get order by ID", tags=["Order"])
+@router.get(
+    path="/order",
+    summary="Get order by ID",
+    tags=["Order"],
+    response_model=OrderResponseModel,
+)
 async def get_order(order_id: int = Query(..., title="Order ID")):
     """Get order by ID"""
     pass
@@ -79,5 +99,5 @@ async def get_product(
     """Get product by ID"""
     async with uow:
         uow.register_repository(Product, BaseRepository)
-        product = await uow.get_repository(Product).get(obj_id=product_id)
+        product = await warehouse_service.get_product(product_id)
         return ProductResponseModel.model_validate(product)
