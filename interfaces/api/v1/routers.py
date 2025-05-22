@@ -1,9 +1,7 @@
 from fastapi import APIRouter
 
-from interfaces.api.v1.endpoints import customer, order, product
+from interfaces.api.v1 import endpoints
 
 router = APIRouter(prefix="/v1")
 
-router.include_router(customer.router)
-router.include_router(order.router)
-router.include_router(product.router)
+router.include_router(endpoints.router)

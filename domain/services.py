@@ -1,3 +1,5 @@
+from typing import List
+
 from domain.dtos import (
     ProductDTO,  # OrderDTO # dataclass для order вообще не нужен в итоге
 )
@@ -18,17 +20,37 @@ class WarehouseService:
 
     async def create_customer(self):
         customer = self.customer_model()
-        await self.uow.get_repository(self.customer_model).add(customer)
-        return customer
+        obj = await self.uow.get_repository(self.customer_model).add(customer)
+        return obj
+
+    async def get_customer(self, customer_id: int):
+        obj = await self.uow.get_repository(self.customer_model).get(obj_id=customer_id)
+        return obj
 
     async def create_product(self, product: ProductDTO):
         product = self.product_model(
             name=product.name, quantity=product.quantity, price=product.price
         )
-        await self.uow.get_repository(self.product_model).add(product)
-        return product
+        obj = await self.uow.get_repository(self.product_model).add(product)
+        return obj
 
-    async def create_order(self, products):
-        order = self.order_model(products=products)
-        await self.uow.get_repository(self.order_model).add(order)
-        return order
+    async def get_product(self, product_id: int):
+        obj = await self.uow.get_repository(self.product_model).get(obj_id=product_id)
+        return obj
+
+    async def create_order(
+        self,
+        customer_id: int,
+        products_ids: List[int],
+    ):
+        order = self.order_model()
+        products = await self.uow.get_repository(self.product_model).list(
+            self.product_model.id.in_(products_ids)
+        )
+        obj = await self.uow.get_repository(self.order_model).add(order)
+        customer = await self.uow.get_repository(self.customer_model).get(
+            obj_id=customer_id
+        )
+        obj.products = products
+        customer.orders.append(obj)
+        return obj
