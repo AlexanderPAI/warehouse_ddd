@@ -50,10 +50,16 @@ async def get_customer(customer_id: int = Query(..., title="Customer ID")):
     response_model=OrderResponseModel,
 )
 async def create_order(
-    products: List[int] | List[str] = Body(..., title="Product IDs")
+    customer_id: int = Query(..., title="Customer IDs"),
+    products_ids: List[int] = Body(..., title="Product IDs"),
 ):
     """Create order"""
-    pass
+    async with uow:
+        uow.register_repository(Customer, BaseRepository)
+        uow.register_repository(Product, BaseRepository)
+        uow.register_repository(Order, BaseRepository)
+        order = await warehouse_service.create_order(customer_id, products_ids)
+        return OrderResponseModel.model_validate(order, from_attributes=True)
 
 
 @router.get(
@@ -64,7 +70,10 @@ async def create_order(
 )
 async def get_order(order_id: int = Query(..., title="Order ID")):
     """Get order by ID"""
-    pass
+    async with uow:
+        uow.register_repository(Order, BaseRepository)
+        order = await uow.get_repository(Order).get(obj_id=order_id)
+        return OrderResponseModel.model_validate(order, from_attributes=True)
 
 
 @router.post(

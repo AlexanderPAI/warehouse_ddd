@@ -14,7 +14,7 @@ DB_URL = (
 
 engine = create_async_engine(DB_URL)
 
-session_factory = async_sessionmaker(bind=engine)
+session_factory = async_sessionmaker(bind=engine, autocommit=False)
 
 
 async def create_tables():

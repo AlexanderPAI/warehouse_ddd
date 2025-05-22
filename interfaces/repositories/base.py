@@ -1,6 +1,6 @@
 from typing import Any, Dict, Generic, Sequence, Type, TypeVar
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 # from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -54,3 +54,15 @@ class BaseRepository(AbstractRepository, Generic[ModelType,]):
             select(self._model).filter(*args).filter_by(**kwargs)
         )
         return obj_list.scalars().all()
+
+    async def update(self, obj_id: int, update_data: Dict) -> ModelType:
+        """
+        Update.
+        :param obj_id: int
+        :param update_data: Dict[Any, Any]
+        :return: Dict[Any, Any]
+        """
+        obj = await self._session.execute(
+            update(self._model).where(self._model.id == obj_id).values(**update_data)
+        )
+        return obj
