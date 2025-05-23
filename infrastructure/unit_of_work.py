@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from typing import Self
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,11 +32,11 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self._session: AsyncSession | None = None
         self._repositories = {}
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         self._session = self.session_factory()
         return self
 
-    async def __aexit__(self, exception_type, exception_value, traceback):
+    async def __aexit__(self, exception_type, exception_value, traceback) -> None:
         if self._session is not None:
             try:
                 if exception_type is None:

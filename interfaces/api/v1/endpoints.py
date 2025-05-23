@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, HTTPException, Query
 
 from domain.dtos import ProductDTO
 from domain.services import WarehouseService
@@ -31,6 +31,10 @@ async def create_customer():
     async with uow:
         uow.register_repository(Customer, BaseRepository)
         customer = await warehouse_service.create_customer()
+        if not customer:
+            raise HTTPException(
+                status_code=500, detail=f"{Customer} could not be created"
+            )
         return CustomerResponseModel.model_validate(customer, from_attributes=True)
 
 
@@ -39,8 +43,12 @@ async def get_customer(customer_id: int = Query(..., title="Customer ID")):
     """Get customer by id or name"""
     async with uow:
         uow.register_repository(Customer, BaseRepository)
-        product = await warehouse_service.get_customer(customer_id)
-        return CustomerResponseModel.model_validate(product, from_attributes=True)
+        customer = await warehouse_service.get_customer(customer_id)
+        if not customer:
+            raise HTTPException(
+                status_code=500, detail=f"{Customer} could not be found"
+            )
+        return CustomerResponseModel.model_validate(customer, from_attributes=True)
 
 
 @router.post(
@@ -59,6 +67,8 @@ async def create_order(
         uow.register_repository(Product, BaseRepository)
         uow.register_repository(Order, BaseRepository)
         order = await warehouse_service.create_order(customer_id, products_ids)
+        if not order:
+            raise HTTPException(status_code=500, detail=f"{Order} could not be created")
         return OrderResponseModel.model_validate(order, from_attributes=True)
 
 
@@ -73,6 +83,8 @@ async def get_order(order_id: int = Query(..., title="Order ID")):
     async with uow:
         uow.register_repository(Order, BaseRepository)
         order = await uow.get_repository(Order).get(obj_id=order_id)
+        if not order:
+            raise HTTPException(status_code=500, detail=f"{Order} could not be found")
         return OrderResponseModel.model_validate(order, from_attributes=True)
 
 
@@ -93,6 +105,8 @@ async def add_product(
         product = await warehouse_service.create_product(
             ProductDTO(name=name, quantity=quantity, price=price)
         )
+        if not product:
+            raise HTTPException(status_code=500, detail=f"{Product} could not be added")
         return ProductResponseModel.model_validate(product)
 
 
@@ -109,4 +123,8 @@ async def get_product(
     async with uow:
         uow.register_repository(Product, BaseRepository)
         product = await warehouse_service.get_product(product_id)
+        if not product:
+            raise HTTPException(
+                status_code=500, detail=f"{Product} could not be founded"
+            )
         return ProductResponseModel.model_validate(product)
