@@ -1,8 +1,6 @@
 from typing import Any, Dict, Generic, Sequence, Type, TypeVar
 
 from sqlalchemy import select, update
-
-# from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from interfaces.repositories.abstract import AbstractRepository

@@ -1,8 +1,6 @@
 from typing import List
 
-from domain.dtos import (
-    ProductDTO,  # OrderDTO # dataclass для order вообще не нужен в итоге
-)
+from domain.dtos import ProductDTO
 
 
 class WarehouseService:
