@@ -38,6 +38,7 @@ class OrderDTO(EntityDTO):
                     new_value.append(v.as_dict())
                 value = new_value
             dct[key] = value
+        return dct
 
 
 @dataclass
@@ -57,3 +58,4 @@ class CustomerDTO(EntityDTO):
                     new_value.append(v.as_dict())
                 value = new_value
             dct[key] = value
+        return dct

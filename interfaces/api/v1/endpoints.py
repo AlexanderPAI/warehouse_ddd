@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import APIRouter, Body, HTTPException, Query
 
-from domain.dtos import ProductDTO
+from domain.dtos import CustomerDTO, OrderDTO, ProductDTO
 from domain.services import WarehouseService
 from infrastructure.database import session_factory
 from infrastructure.models import Customer, Order, Product
@@ -100,6 +100,15 @@ async def add_product(
     price: float = Body(..., title="Price"),
 ):
     """Add product"""
+    customer = CustomerDTO(
+        id=1,
+        orders=[
+            OrderDTO(
+                id=1, products=[ProductDTO(id=1, name="banana", quantity=1, price=100)]
+            )
+        ],
+    )
+    logger.info(customer.as_dict())
     async with uow:
         uow.register_repository(Product, BaseRepository)
         product = await warehouse_service.create_product(
