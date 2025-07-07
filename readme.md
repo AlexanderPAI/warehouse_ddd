@@ -1,5 +1,46 @@
+# Чистый склад
+
+## Реализовано
+
+- Бизнес-логика приложения с использованием UoW и Repository.
+- docker-compose с nginx и БД.
+- API для возможности проверить работу приложения:
+  - `/api/v1/customer`:
+    - `POST` - создать Customer
+    - `GET` - получить Customer  по id
+  - `/api/v1/order`:
+    - `POST` - создать Order
+    - `GET` - получить Order
+  - `/api/v1/product`:
+    - `POST` - создать Product
+    - `GET` - получить Product
+
+## Порядок запуска
+
+### Через make:
+```commandline
+# собрать контейнеры
+make build
+# запустить контейнеры
+make up
+```
+
+### Через docker-compose
+```commandline
+# 1. Собрать контейнеры и запустить
+docker-compose up --build -d
+```
+
+### Запусить тесты:
+```commandline
+make test
+# или
+docker-compose up --build -d
+docker exec warehouse_backend pytest -v tests/
+```
+
+
 ## Задание
-### Чистый склад
 
 *Задание*: Доработать бизнес логику и репозиторий для чистого склада
 
