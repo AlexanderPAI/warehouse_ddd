@@ -1,6 +1,6 @@
 import pytest
 
-from tests.unit.domain.fixtures import dto_fixtures
+from tests.unit.fixtures import dto_fixtures
 
 
 @pytest.mark.parametrize("dto, expected", dto_fixtures)

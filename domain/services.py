@@ -1,6 +1,4 @@
-from typing import List
-
-from domain.dtos import ProductDTO
+from typing import Any, Dict, List
 
 
 class WarehouseService:
@@ -25,10 +23,8 @@ class WarehouseService:
         obj = await self.uow.get_repository(self.customer_model).get(obj_id=customer_id)
         return obj
 
-    async def create_product(self, product: ProductDTO):
-        product = self.product_model(
-            name=product.name, quantity=product.quantity, price=product.price
-        )
+    async def create_product(self, product: Dict[Any, Any]):
+        product = self.product_model(**product)
         obj = await self.uow.get_repository(self.product_model).add(product)
         return obj
 
